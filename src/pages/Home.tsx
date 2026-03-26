@@ -551,15 +551,15 @@ export default function Home() {
                   <div>
                     <p className="text-[10px] font-bold tracking-[0.4em] text-black/50 uppercase mb-4">The Studio</p>
                     <p className="text-xl font-serif text-black leading-relaxed">
-                      Chandigarh, India <br />
-                      Sector 17-C, City Centre
+                      Motiaz Royal Business Park <br />
+                      Zirakpur, PB, India
                     </p>
                   </div>
 
                   <div>
                     <p className="text-[10px] font-bold tracking-[0.4em] text-black/50 uppercase mb-4">Direct Inquiries</p>
-                    <a href="mailto:hello@bmadvertiser.com" className="block text-2xl font-serif text-black hover:text-[#A30000] transition-colors duration-300 mb-2">
-                      hello@bmadvertiser.com
+                    <a href="mailto:bmadvertiserchd@gmail.com" className="block text-2xl font-serif text-black hover:text-[#A30000] transition-colors duration-300 mb-2">
+                      bmadvertiserchd@gmail.com
                     </a>
                     <p className="text-xl font-serif text-black">+91 90730 03600</p>
                   </div>
