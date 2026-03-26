@@ -42,7 +42,6 @@ export default function Magazines() {
 
   // 1. Reusable Next/Prev logic
   const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
-  const prevSlide = () => setAssetIdx(p => (p - 1 + UPCOMING_ASSETS.length) % UPCOMING_ASSETS.length);
 
   useEffect(() => {
     const currentAsset = UPCOMING_ASSETS[assetIdx];

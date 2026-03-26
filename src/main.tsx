@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Gallery from './pages/Gallery';
 import Magazines from './pages/Magazines';
 import { Navbar } from './components/Navbar';
-import { Footer } from './components/footer';
+import { Footer } from './components/Footer';
 import './index.css';
 
 function ScrollToTop() {
