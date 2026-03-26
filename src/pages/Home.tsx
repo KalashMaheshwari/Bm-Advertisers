@@ -33,27 +33,27 @@ const SERVICES = [
 
 const GALLERY_IMAGES = [
   {
-    url: "/gallery/1.jpg", // Correct: Browser looks in public/gallery/1.jpg
+    url: "./gallery/1.jpg", // Correct: Browser looks in public/gallery/1.jpg
     title: "Elite Events",
     size: "md:col-span-8 md:row-span-2",
   },
   {
-    url: "/gallery/2.jpg",
+    url: "./gallery/2.jpg",
     title: "Premium Publishing",
     size: "md:col-span-4 md:row-span-1",
   },
   {
-    url: "/gallery/3.jpg",
+    url: "./gallery/3.jpg",
     title: "Brand Strategy",
     size: "md:col-span-4 md:row-span-1",
   },
   {
-    url: "/gallery/4.jpg",
+    url: "./gallery/4.jpg",
     title: "Networking Gala",
     size: "md:col-span-4 md:row-span-2",
   },
   {
-    url: "/gallery/5.jpg",
+    url: "./gallery/5.jpg",
     title: "Recognition Awards",
     size: "md:col-span-8 md:row-span-2",
   },
@@ -82,7 +82,7 @@ export default function Home() {
         {/* THE CINEMATIC STACK */}
         <div className="absolute inset-0 z-0">
           <video autoPlay loop muted playsInline className="w-full h-full object-cover scale-105 brightness-[0.5] contrast-[1.2]">
-            <source src="/video/hero.mp4" type="video/mp4" />
+            <source src="./video/hero.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-[#A30000]/10 mix-blend-multiply" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
@@ -267,10 +267,20 @@ export default function Home() {
             {/* Block 3: Visual Identity (Monochrome Impact) */}
             <div className="md:col-span-4 rounded-[2.5rem] overflow-hidden relative group">
               <img
-                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800"
-                className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-1000 scale-110 group-hover:scale-100"
+                src="./about.jpeg"
+                alt="About BM"
+                className="w-full h-full object-cover 
+               /* Initial State: Darkened and slightly desaturated */
+               brightness-[0.8] saturate-[1] 
+               /* Hover State: Brighten and make colors 'pop' */
+               group-hover:brightness-110 group-hover:saturate-150 
+               /* Smooth transition for the effect */
+               transition-all duration-700 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+
+              {/* The gradient overlay - slightly reduced to let the image show more */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
+
               <div className="absolute bottom-10 left-10">
                 <p className="text-white font-serif text-2xl italic">Curated Excellence.</p>
               </div>

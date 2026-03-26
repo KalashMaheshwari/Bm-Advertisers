@@ -66,7 +66,7 @@ export function Footer() {
           </span>
           <Link to="/" onClick={handleScrollToTop}>
             <img 
-              src="/logowhite.png" 
+              src="./logowhite.png" 
               alt="BM Logo" 
               className="h-7 w-auto object-contain opacity-50 hover:opacity-100 transition-opacity" 
             />

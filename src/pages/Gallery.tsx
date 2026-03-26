@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "../lib/utils";
 
 // 1. DATA GENERATION: 124 Images / Windows Naming Logic
 const TOTAL_IMAGES = 124;
 const ALL_IMAGES = Array.from({ length: TOTAL_IMAGES }, (_, i) => ({
   id: i + 1,
-  url: `/gallery/all/img (${i + 1}).jpg`,
+  url: `./gallery/all/img (${i + 1}).jpg`,
 }));
 
 export default function Gallery() {
@@ -60,25 +61,7 @@ export default function Gallery() {
       <main className="px-3 pt-8 pb-24">
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {ALL_IMAGES.map((img, i) => (
-            <div
-              key={img.id}
-              onClick={() => setIndex(i)}
-              className="relative break-inside-avoid cursor-pointer bg-black group overflow-hidden rounded-xl shadow-sm"
-            // CSS Optimization: content-visibility is handled in the class
-            >
-              <img
-                src={img.url}
-                alt="Archive item"
-                loading={i < 6 ? "eager" : "lazy"}
-
-                // Change fetchpriority to fetchPriority
-                fetchPriority={i < 6 ? "high" : "low"}
-
-                style={{ willChange: "opacity" }}
-                className="w-full h-auto object-cover block group-hover:opacity-60 transition-opacity duration-500"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
-            </div>
+            <GalleryImage key={img.id} img={img} index={i} setIndex={setIndex} />
           ))}
         </div>
       </main>
@@ -128,6 +111,35 @@ export default function Gallery() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function GalleryImage({ img, index, setIndex }: { img: any, index: number, setIndex: any }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div
+      onClick={() => setIndex(index)}
+      className={cn(
+        "relative break-inside-avoid cursor-pointer overflow-hidden rounded-xl shadow-sm transition-all duration-500",
+        // The "Skeleton" state:
+        !loaded ? "bg-black/5 animate-pulse min-h-[300px]" : "bg-black"
+      )}
+    >
+      <img
+        src={img.url}
+        alt="Archive item"
+        loading={index < 6 ? "eager" : "lazy"}
+        fetchPriority={index < 6 ? "high" : "low"}
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "w-full h-auto object-cover block group-hover:opacity-60 transition-all duration-700 ease-in-out",
+          // Hidden until loaded to prevent "half-loaded" image flickering
+          loaded ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
+        )}
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
     </div>
   );
 }
