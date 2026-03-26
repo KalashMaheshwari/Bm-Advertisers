@@ -21,7 +21,7 @@ function ScrollToTop() {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/Bm-Advertisers">
       <ScrollToTop />
       <Navbar />
       <Routes>
