@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// https://vite.dev/config/
 export default defineConfig(async () => {
   const plugins = [react(), tailwindcss()];
   try {
@@ -13,7 +12,7 @@ export default defineConfig(async () => {
 
   return { 
     plugins,
-    // FIX: Use relative base so it works on any GitHub project URL
-    base: './', 
+    // STRICT FIX: This ensures GitHub Pages looks in the subfolder
+    base: '/Bm-Advertisers/', 
   };
 })

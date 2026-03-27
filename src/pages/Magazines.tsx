@@ -20,9 +20,9 @@ const UPCOMING_ASSETS = [
 ];
 
 const MAGAZINES_DATA = [
-  { id: 1, title: "BEMISAL SAKSHIYAT", year: "2024", cover: "./magazines/Bemisal_Sakshiyat_24/thumbnail.webp", pdf: "./magazines/Bemisal_Sakshiyat_24/magazine.pdf" },
-  { id: 2, title: "SAFALTA KE SARTAJ", year: "2023", cover: "./magazines/Safalta_Ke_Sartaj_23/thumbnail.webp", pdf: "./magazines/Safalta_Ke_Sartaj_23/magazine.pdf" },
-  { id: 3, title: "UDAAN ANNUAL EDITION", year: "2025", cover: "./magazines/UDAAN_25/thumbnail.webp", pdf: "./magazines/UDAAN_25/magazine.pdf" },
+  { id: 1, title: "BEMISAL SAKSHIYAT", year: "2024", cover: "/magazines/Bemisal_Sakshiyat_24/thumbnail.webp", pdf: "/magazines/Bemisal_Sakshiyat_24/magazine.pdf" },
+  { id: 2, title: "SAFALTA KE SARTAJ", year: "2023", cover: "/magazines/Safalta_Ke_Sartaj_23/thumbnail.webp", pdf: "/magazines/Safalta_Ke_Sartaj_23/magazine.pdf" },
+  { id: 3, title: "UDAAN ANNUAL EDITION", year: "2025", cover: "/magazines/UDAAN_25/thumbnail.webp", pdf: "/magazines/UDAAN_25/magazine.pdf" },
 ];
 
 export default function Magazines() {

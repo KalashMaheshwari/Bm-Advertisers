@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/utils";
 import emailjs from '@emailjs/browser'; // Assuming you have a cn utility, otherwise use standard strings
 
+emailjs.init("fOUurTrFc6Ki6O-PI");
+
 const SERVICES = [
   {
     title: "Magazine Publishing",
@@ -78,27 +80,36 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const sendEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    // Replace these with your actual IDs from emailjs.com
-    emailjs.sendForm(
-      'YOUR_SERVICE_ID',
-      'YOUR_TEMPLATE_ID',
-      formRef.current!,
-      'YOUR_PUBLIC_KEY'
-    )
-      .then(() => {
-        setStatus("success");
-        setIsSubmitting(false);
-        formRef.current?.reset();
-        setSelectedInterest("");
-      })
-      .catch(() => {
-        setStatus("error");
-        setIsSubmitting(false);
-      });
+  // Manual data object - bypasses form issues
+  const templateParams = {
+    user_name: formRef.current?.user_name.value,
+    user_email: formRef.current?.user_email.value,
+    interest: selectedInterest,
+    message: formRef.current?.message.value,
   };
+
+  emailjs.send(
+    'service_wirua98', 
+    'template_sm9k4nd', 
+    templateParams, 
+    'fOUurTrFc6Ki6O-PI'
+  )
+  .then(() => {
+    setStatus("success");
+    setIsSubmitting(false);
+    formRef.current?.reset();
+    setSelectedInterest("");
+  })
+  .catch((error) => {
+    // This will tell us the SPECIFIC reason for the 400 error
+    console.error("EmailJS Full Error:", error);
+    setStatus("error");
+    setIsSubmitting(false);
+  });
+};
 
 
   return (
@@ -470,7 +481,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Dropdown Section (Keep your existing dropdown UI here) */}
                   {/* DROPDOWN: INTERESTED IN - FIXED */}
                   <div className="relative">
                     <p className="text-[10px] font-bold tracking-[0.3em] text-black/50 uppercase mb-4">Interested In</p>
