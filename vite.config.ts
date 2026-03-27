@@ -7,5 +7,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: '/Bm-Advertisers/', 
+  base: '/', 
 })
