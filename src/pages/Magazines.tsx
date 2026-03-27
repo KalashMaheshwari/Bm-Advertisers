@@ -15,9 +15,9 @@ import { cn } from "../lib/utils";
  * ARCHIVE DATA
  */
 const UPCOMING_ASSETS = [
-  { type: "video", url: "./banners/banner1.mp4" },
-  { type: "image", url: "./banners/banner2.webp" },
-  { type: "image", url: "./banners/banner3.webp" },
+  { type: "video", url: "/banners/banner1.mp4" },
+  { type: "image", url: "/banners/banner2.webp" },
+  { type: "image", url: "/banners/banner3.webp" },
 ];
 
 const MAGAZINES_DATA = [

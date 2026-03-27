@@ -39,18 +39,20 @@ export function Navbar() {
       {/* 1. THE STICKY NAV CONTAINER */}
       <nav className={cn(
         "fixed top-0 left-0 right-0 w-full z-[110] transition-all duration-700 ease-in-out",
-        scrolled
-          ? "py-3 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] shadow-[0_2px_20px_rgba(0,0,0,0.02)]"
-          : "py-6 bg-transparent border-b border-transparent"
+        // Fixed Logic: On mobile (default), always show background. On desktop (md:), only show on scroll.
+        "py-3 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] shadow-[0_2px_20px_rgba(0,0,0,0.02)]",
+        !scrolled && "md:py-6 md:bg-transparent md:border-transparent md:shadow-none"
       )}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
 
           {/* LEFT: Subtle Logo (Appears only on scroll or mobile) */}
           <Link to="/" className={cn(
             "transition-all duration-500",
-            scrolled || isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 md:pointer-events-none"
+            // Mobile: Always opacity-100. Desktop (md:): Start at 0, go to 100 on scroll/open.
+            "opacity-100 translate-x-0",
+            !scrolled && !isOpen && "md:opacity-0 md:-translate-x-4 md:pointer-events-none"
           )}>
-            <img src="./logo.png" alt="BM Logo" className="h-8 md:h-10 w-auto object-contain" />
+            <img src="/logo.webp" alt="BM Logo" className="h-8 md:h-10 w-auto object-contain" />
           </Link>
 
           {/* CENTER: Desktop Menu */}
@@ -133,7 +135,7 @@ export function Navbar() {
       </AnimatePresence>
 
       {/* 3. MAIN BRANDING HUB: Refined Header */}
-      <div className="w-full bg-white pt-32 pb-12 border-b border-black/[0.02]">
+      <div className="hidden md:block w-full bg-white pt-32 pb-12 border-b border-black/[0.02]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -142,17 +144,13 @@ export function Navbar() {
           >
             <Link to="/" className="group block relative">
               <img
-                src="./logo.png"
+                src="/logo.webp"
                 alt="BM Advertiser Logo"
                 className="h-20 md:h-32 w-auto object-contain transition-all duration-1000 group-hover:brightness-110"
               />
-              {/* Subtle Red Shadow Glow */}
               <div className="absolute -inset-4 bg-[#A30000]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
             </Link>
           </motion.div>
-
-          <div className="flex flex-col items-center space-y-2">
-          </div>
         </div>
       </div>
     </header>

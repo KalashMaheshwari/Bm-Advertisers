@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FadeIn } from "../components/FadeIn";
 import { Button } from "../components/Button";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/utils";
 import emailjs from '@emailjs/browser'; // Assuming you have a cn utility, otherwise use standard strings
+import { ArrowRight } from "lucide-react";
 
 emailjs.init("fOUurTrFc6Ki6O-PI");
 
@@ -37,27 +39,27 @@ const SERVICES = [
 
 const GALLERY_IMAGES = [
   {
-    url: "./gallery/1.webp",
+    url: "/gallery/1.webp",
     title: "Elite Events",
     size: "col-span-1 md:col-span-8 md:row-span-2 h-[250px] md:h-auto",
   },
   {
-    url: "./gallery/2.webp",
+    url: "/gallery/2.webp",
     title: "Premium Publishing",
     size: "col-span-1 md:col-span-4 md:row-span-1 h-[200px] md:h-auto",
   },
   {
-    url: "./gallery/3.webp",
+    url: "/gallery/3.webp",
     title: "Brand Strategy",
     size: "col-span-1 md:col-span-4 md:row-span-1 h-[200px] md:h-auto",
   },
   {
-    url: "./gallery/4.webp",
+    url: "/gallery/4.webp",
     title: "Networking Gala",
     size: "col-span-1 md:col-span-4 md:row-span-2 h-[250px] md:h-auto",
   },
   {
-    url: "./gallery/5.webp",
+    url: "/gallery/5.webp",
     title: "Recognition Awards",
     size: "col-span-1 md:col-span-8 md:row-span-2 h-[250px] md:h-auto",
   },
@@ -72,6 +74,7 @@ const INTERESTS = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [selectedInterest, setSelectedInterest] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -80,36 +83,36 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const sendEmail = (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  // Manual data object - bypasses form issues
-  const templateParams = {
-    user_name: formRef.current?.user_name.value,
-    user_email: formRef.current?.user_email.value,
-    interest: selectedInterest,
-    message: formRef.current?.message.value,
+    // Manual data object - bypasses form issues
+    const templateParams = {
+      user_name: formRef.current?.user_name.value,
+      user_email: formRef.current?.user_email.value,
+      interest: selectedInterest,
+      message: formRef.current?.message.value,
+    };
+
+    emailjs.send(
+      'service_wirua98',
+      'template_sm9k4nd',
+      templateParams,
+      'fOUurTrFc6Ki6O-PI'
+    )
+      .then(() => {
+        setStatus("success");
+        setIsSubmitting(false);
+        formRef.current?.reset();
+        setSelectedInterest("");
+      })
+      .catch((error) => {
+        // This will tell us the SPECIFIC reason for the 400 error
+        console.error("EmailJS Full Error:", error);
+        setStatus("error");
+        setIsSubmitting(false);
+      });
   };
-
-  emailjs.send(
-    'service_wirua98', 
-    'template_sm9k4nd', 
-    templateParams, 
-    'fOUurTrFc6Ki6O-PI'
-  )
-  .then(() => {
-    setStatus("success");
-    setIsSubmitting(false);
-    formRef.current?.reset();
-    setSelectedInterest("");
-  })
-  .catch((error) => {
-    // This will tell us the SPECIFIC reason for the 400 error
-    console.error("EmailJS Full Error:", error);
-    setStatus("error");
-    setIsSubmitting(false);
-  });
-};
 
 
   return (
@@ -120,7 +123,7 @@ export default function Home() {
         {/* THE CINEMATIC STACK */}
         <div className="absolute inset-0 z-0">
           <video autoPlay loop muted playsInline className="w-full h-full object-cover scale-105 brightness-[0.5] contrast-[1.2]">
-            <source src="./video/hero.mp4" type="video/mp4" />
+            <source src="/video/hero.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-[#A30000]/10 mix-blend-multiply" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
@@ -260,7 +263,7 @@ export default function Home() {
 
             {/* Block 3 */}
             <div className="md:col-span-4 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden relative group min-h-[300px] md:min-h-0">
-              <img src="./about.webp" alt="About BM" className="w-full h-full object-cover brightness-[0.8] saturate-[1] group-hover:brightness-110 group-hover:saturate-150 transition-all duration-700 ease-out" />
+              <img src="/about.webp" alt="About BM" className="w-full h-full object-cover brightness-[0.8] saturate-[1] group-hover:brightness-110 group-hover:saturate-150 transition-all duration-700 ease-out" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
               <div className="absolute bottom-8 left-8">
                 <p className="text-white font-serif text-xl md:text-2xl italic">Curated Excellence.</p>
@@ -301,7 +304,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 md:py-32 px-6 lg:px-12 bg-white">
+      <section id="services" className="py-20 md:py-20 px-6 lg:px-12 bg-white">
         <div className="max-w-5xl mx-auto">
           <FadeIn direction="up" className="mb-12 md:mb-24">
             <div className="flex items-center space-x-4 mb-6 md:mb-8">
@@ -357,8 +360,42 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="px-4 md:px-12 mb-0 md:mb-32">
+        <div
+          onClick={() => navigate('/magazines')}
+          className="max-w-[1600px] mx-auto relative cursor-pointer overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl group"
+        >
+          {/* Mobile Banner (Hidden on Desktop) */}
+          <img
+            src="/banners/magazine_banner_ls.webp"
+            alt="Read Our Magazines"
+            className="block md:hidden w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+
+          {/* Desktop Banner (Hidden on Mobile) */}
+          <img
+            src="/banners/magazine_banner_wide.webp"
+            alt="Read Our Magazines"
+            className="hidden md:block w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+
+          {/* MOBILE ONLY HINT (Visible without hover) */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:hidden flex items-center space-x-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 animate-pulse">
+            <span className="text-[8px] text-white font-black uppercase tracking-[0.2em]">Tap to Explore</span>
+            <ArrowRight size={10} className="text-white" />
+          </div>
+
+          {/* Optional: Hover Overlay for better UX */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 font-bold uppercase tracking-widest text-[10px]">
+              Click Banner to Explore Publications
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Gallery Preview */}
-      <section id="gallery" className="py-20 md:py-32 px-6 lg:px-12 bg-[#FAF8F8] overflow-hidden">
+      <section id="gallery" className="py-20 md:py-15 px-6 lg:px-12 bg-[#FAF8F8] overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <FadeIn direction="up" className="mb-16 md:mb-24">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12">

@@ -5,7 +5,7 @@ import { cn } from "../lib/utils";
 const TOTAL_IMAGES = 121;
 const ALL_IMAGES = Array.from({ length: TOTAL_IMAGES }, (_, i) => ({
   id: i + 1,
-  url: `./gallery/all/img (${i + 1}).webp`,
+  url: `/gallery/all/img (${i + 1}).webp`,
 }));
 
 export default function Gallery() {

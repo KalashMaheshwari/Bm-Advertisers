@@ -62,11 +62,11 @@ export function Footer() {
         {/* Bottom Bar: License & Logo */}
         <div className="pt-8 border-t border-white/5 flex justify-between items-center">
           <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20">
-            © 2006 — {new Date().getFullYear()} BM ADVERTISERS
+            ©{new Date().getFullYear()} BM ADVERTISERS
           </span>
           <Link to="/" onClick={handleScrollToTop}>
             <img 
-              src="./logowhite.png" 
+              src="/logowhite.webp" 
               alt="BM Logo" 
               className="h-7 w-auto object-contain opacity-50 hover:opacity-100 transition-opacity" 
             />
