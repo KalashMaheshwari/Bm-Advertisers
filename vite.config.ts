@@ -13,6 +13,6 @@ export default defineConfig(async () => {
   return { 
     plugins,
     // STRICT FIX: This ensures GitHub Pages looks in the subfolder
-    base: '/Bm-Advertisers/', 
+    base: './', 
   };
 })
