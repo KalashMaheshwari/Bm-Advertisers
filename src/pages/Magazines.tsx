@@ -245,18 +245,19 @@ export default function Magazines() {
 }
 
 <style>{`
-  /* Forces the viewer to fill the screen */
-  .rpv-core__viewer { height: 100%; }
-  
-  /* Dark mode adjustments to match your brand */
-  .rpv-core__inner-pages { background-color: #070707 !important; }
-  
-  /* Make the toolbar icons white to match your UI */
-  .rpv-core__icon { color: white !important; }
-  
-  /* Highlight buttons in your brand red on hover */
-  .rpv-core__button:hover { background-color: #A30000 !important; }
-
-  /* Hide the sidebar button for a cleaner "Magazine" look */
-  button[aria-label="Thumbnail"] { display: none !important; }
-`}</style>
+        /* 1. Custom Site Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
+        
+        /* 2. PDF Viewer Overrides */
+        .rpv-core__viewer { height: 100%; }
+        .rpv-core__inner-pages { background-color: #070707 !important; }
+        .rpv-core__icon { color: white !important; }
+        .rpv-core__button:hover { background-color: #A30000 !important; }
+        
+        /* 3. Hide Sidebar/Thumbnail button for clean look */
+        button[aria-label="Thumbnail"], 
+        button[aria-label="Bookmarks"],
+        button[aria-label="Attachments"] { display: none !important; }
+      `}</style>
