@@ -13,7 +13,7 @@ export default defineConfig(async () => {
 
   return { 
     plugins,
-    // ADD THIS LINE BELOW
-    base: '/Bm-Advertisers/', 
+    // FIX: Use relative base so it works on any GitHub project URL
+    base: './', 
   };
 })
