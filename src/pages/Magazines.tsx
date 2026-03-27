@@ -8,7 +8,7 @@ import {
 import { cn } from "../lib/utils";
 
 // Use a stable, versioned CDN for the worker to avoid 404s
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 /**
  * ARCHIVE DATA
@@ -20,9 +20,27 @@ const UPCOMING_ASSETS = [
 ];
 
 const MAGAZINES_DATA = [
-  { id: 1, title: "BEMISAL SAKSHIYAT", year: "2024", cover: "/magazines/Bemisal_Sakshiyat_24/thumbnail.webp", pdf: "/magazines/Bemisal_Sakshiyat_24/magazine.pdf" },
-  { id: 2, title: "SAFALTA KE SARTAJ", year: "2023", cover: "/magazines/Safalta_Ke_Sartaj_23/thumbnail.webp", pdf: "/magazines/Safalta_Ke_Sartaj_23/magazine.pdf" },
-  { id: 3, title: "UDAAN ANNUAL EDITION", year: "2025", cover: "/magazines/UDAAN_25/thumbnail.webp", pdf: "/magazines/UDAAN_25/magazine.pdf" },
+  {
+    id: 1,
+    title: "BEMISAL SAKSHIYAT",
+    year: "2024",
+    cover: "/Bm-Advertisers/magazines/Bemisal_Sakshiyat_24/thumbnail.webp",
+    pdf: "/Bm-Advertisers/magazines/Bemisal_Sakshiyat_24/magazine.pdf"
+  },
+  {
+    id: 2,
+    title: "SAFALTA KE SARTAJ",
+    year: "2023",
+    cover: "/Bm-Advertisers/magazines/Safalta_Ke_Sartaj_23/thumbnail.webp",
+    pdf: "/Bm-Advertisers/magazines/Safalta_Ke_Sartaj_23/magazine.pdf"
+  },
+  {
+    id: 3,
+    title: "UDAAN ANNUAL EDITION",
+    year: "2025",
+    cover: "/Bm-Advertisers/magazines/UDAAN_25/thumbnail.webp",
+    pdf: "/Bm-Advertisers/magazines/UDAAN_25/magazine.pdf"
+  },
 ];
 
 export default function Magazines() {
@@ -80,7 +98,7 @@ export default function Magazines() {
       setRotation(0);
       document.body.style.overflow = "auto";
       // RESUME VIDEO when closing magazine
-      videoRef.current?.play().catch(() => {});
+      videoRef.current?.play().catch(() => { });
     } else {
       document.body.style.overflow = "hidden";
       // PAUSE VIDEO when opening magazine
@@ -99,7 +117,7 @@ export default function Magazines() {
         if (videoRef.current) {
           // Only play if the video is visible AND no magazine is currently open
           if (entry.isIntersecting && !activeMag) {
-            videoRef.current.play().catch(() => {}); 
+            videoRef.current.play().catch(() => { });
           } else {
             videoRef.current.pause();
           }
