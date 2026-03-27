@@ -151,11 +151,7 @@ export function Navbar() {
             </Link>
           </motion.div>
 
-          <div className="mt-6 flex flex-col items-center space-y-2">
-            <div className="h-[1px] w-8 bg-[#A30000]/40" />
-            <span className="text-[10px] uppercase font-black tracking-[0.6em] text-black/20">
-              Established 2006
-            </span>
+          <div className="flex flex-col items-center space-y-2">
           </div>
         </div>
       </div>

@@ -35,27 +35,27 @@ const SERVICES = [
 
 const GALLERY_IMAGES = [
   {
-    url: "./gallery/1.jpg",
+    url: "./gallery/1.webp",
     title: "Elite Events",
     size: "col-span-1 md:col-span-8 md:row-span-2 h-[250px] md:h-auto",
   },
   {
-    url: "./gallery/2.jpg",
+    url: "./gallery/2.webp",
     title: "Premium Publishing",
     size: "col-span-1 md:col-span-4 md:row-span-1 h-[200px] md:h-auto",
   },
   {
-    url: "./gallery/3.jpg",
+    url: "./gallery/3.webp",
     title: "Brand Strategy",
     size: "col-span-1 md:col-span-4 md:row-span-1 h-[200px] md:h-auto",
   },
   {
-    url: "./gallery/4.jpg",
+    url: "./gallery/4.webp",
     title: "Networking Gala",
     size: "col-span-1 md:col-span-4 md:row-span-2 h-[250px] md:h-auto",
   },
   {
-    url: "./gallery/5.jpg",
+    url: "./gallery/5.webp",
     title: "Recognition Awards",
     size: "col-span-1 md:col-span-8 md:row-span-2 h-[250px] md:h-auto",
   },
@@ -104,7 +104,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white selection:bg-[#A30000] selection:text-white overflow-x-hidden">
       {/* Hero Section */}
-      {/* Hero Section - Final Responsive Fix */}
       <section className="relative min-h-screen md:h-screen w-full flex items-center overflow-hidden bg-black py-20 md:py-0">
 
         {/* THE CINEMATIC STACK */}
@@ -130,11 +129,11 @@ export default function Home() {
             </FadeIn>
 
             <FadeIn delay={0.4} direction="up">
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-white mb-6 md:mb-8">
-                Showcasing Success<span className="text-[#A30000]">.</span><br className="hidden md:block" />
-                <span className="font-serif text-4xl md:text-6xl lg:text-6xl leading-[1.1] tracking-tight text-white">
-                  Powering Recognition
-                </span><span className="text-[#A30000]">.</span>
+              {/* FIX: whitespace-nowrap prevents the words from breaking on small screens */}
+              <h1 className="font-serif text-[clamp(2rem,8vw,4.5rem)] leading-[1.1] tracking-tight text-white mb-6 md:mb-8">
+                <span className="whitespace-nowrap">Showcasing Success<span className="text-[#A30000]">.</span></span>
+                <br />
+                <span className="whitespace-nowrap">Powering Recognition<span className="text-[#A30000]">.</span></span>
               </h1>
             </FadeIn>
 
@@ -156,25 +155,41 @@ export default function Home() {
             </FadeIn>
           </div>
 
-          {/* Right Column - Cards (Fixed for Mobile) */}
-          <div className="w-full lg:col-span-4 relative flex flex-col md:flex-row lg:block gap-4 md:gap-6 order-2 mt-8 lg:mt-0 lg:h-[500px]">
+          {/* Right Column - Cards (FIXED POSITIONING) */}
+          {/* FIX: Added lg:relative and absolute positioning to mimic your screenshot layout */}
+          <div className="w-full lg:col-span-5 relative flex flex-col gap-4 order-2 mt-12 lg:mt-0 lg:h-[500px]">
             {[
-              { title: "Visibility.", text: "Specializing in premium magazines and influential storytelling.", pos: "lg:top-0 lg:left-0", delay: 0.8 },
-              { title: "Credibility.", text: "Platforms where professionals gain recognized industry authority.", pos: "lg:top-[160px] lg:left-[60px]", delay: 1.0 },
-              { title: "Connections.", text: "Beyond publishing. Connecting influential individual networks.", pos: "lg:top-[320px] lg:left-[120px]", delay: 1.2 }
+              {
+                title: "Visibility.",
+                text: "Specializing in premium magazines and influential storytelling.",
+                pos: "lg:absolute lg:top-0 lg:right-20", // Step 1
+                delay: 0.8
+              },
+              {
+                title: "Credibility.",
+                text: "Platforms where professionals gain recognized industry authority.",
+                pos: "lg:absolute lg:top-[165px] lg:right-10", // Step 2
+                delay: 1.0
+              },
+              {
+                title: "Connections.",
+                text: "Beyond publishing. Connecting influential individual networks.",
+                pos: "lg:absolute lg:top-[330px] lg:right-0", // Step 3
+                delay: 1.2
+              }
             ].map((box, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: box.delay }}
                 className={cn(
-                  "relative w-full lg:w-64 glass-card p-6 rounded-2xl border border-white/20 shadow-2xl backdrop-blur-3xl transition-all duration-500",
-                  box.pos // This only applies spacing on large screens now
+                  "w-full lg:w-72 glass-card p-6 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-3xl bg-white/10 transition-all duration-500",
+                  box.pos
                 )}
               >
                 <h3 className="text-[#A30000] font-serif text-lg mb-2 italic">{box.title}</h3>
-                <p className="text-black/80 text-[11px] leading-relaxed font-medium">{box.text}</p>
+                <p className="text-white/80 text-[11px] leading-relaxed font-medium">{box.text}</p>
               </motion.div>
             ))}
           </div>
@@ -234,7 +249,7 @@ export default function Home() {
 
             {/* Block 3 */}
             <div className="md:col-span-4 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden relative group min-h-[300px] md:min-h-0">
-              <img src="./about.jpeg" alt="About BM" className="w-full h-full object-cover brightness-[0.8] saturate-[1] group-hover:brightness-110 group-hover:saturate-150 transition-all duration-700 ease-out" />
+              <img src="./about.webp" alt="About BM" className="w-full h-full object-cover brightness-[0.8] saturate-[1] group-hover:brightness-110 group-hover:saturate-150 transition-all duration-700 ease-out" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
               <div className="absolute bottom-8 left-8">
                 <p className="text-white font-serif text-xl md:text-2xl italic">Curated Excellence.</p>
@@ -356,9 +371,24 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:auto-rows-[300px]">
             {GALLERY_IMAGES.map((image, index) => (
-              <motion.div key={index} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className={cn("relative group overflow-hidden bg-black", image.size)}>
-                <motion.img src={image.url} alt={image.title} className="w-full h-full object-cover transition-all duration-1000 ease-out opacity-70 group-hover:opacity-100 md:group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 md:group-hover:opacity-40 transition-opacity duration-700" />
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className={cn("relative group overflow-hidden bg-black", image.size)}
+              >
+                {/* EDIT 1: Changed opacity-70 to opacity-100 and removed group-hover:opacity-100 */}
+                <motion.img
+                  src={image.url}
+                  alt={image.title}
+                  className="w-full h-full object-cover transition-all duration-1000 ease-out opacity-100 md:group-hover:scale-105"
+                />
+
+                {/* EDIT 2: Removed the dark gradient overlay entirely */}
+                {/* The <div> that was here previously is gone now */}
+
                 <motion.div initial={{ width: 0 }} whileHover={{ width: "100%" }} className="absolute top-0 left-0 h-[2px] bg-[#A30000] z-20" />
               </motion.div>
             ))}
@@ -382,12 +412,12 @@ export default function Home() {
                 <div className="space-y-8 md:space-y-12">
                   <div>
                     <p className="text-[9px] md:text-[10px] font-bold tracking-[0.3em] text-black/50 uppercase mb-3">The Studio</p>
-                    <p className="text-lg md:text-xl font-serif text-black leading-relaxed">Motiaz Royal Business Park <br />Zirakpur, PB, India</p>
+                    <p className="text-lg md:text-xl font-serif text-black leading-relaxed">S-316, 3rd Floor, Orbit Signature Walk<br />VIP Road, Zirakpur, PB, India</p>
                   </div>
                   <div>
                     <p className="text-[9px] md:text-[10px] font-bold tracking-[0.3em] text-black/50 uppercase mb-3">Direct Inquiries</p>
                     <a href="mailto:bmadvertiserchd@gmail.com" className="block text-xl md:text-2xl font-serif text-black hover:text-[#A30000] transition-colors break-words mb-2">bmadvertiserchd@gmail.com</a>
-                    <p className="text-lg md:text-xl font-serif text-black">+91 90730 03600</p>
+                    <p className="text-lg md:text-xl font-serif text-black">+91 907 300 3600</p>
                   </div>
                   <div className="pt-8 md:pt-10 mt-8 md:mt-12 border-t border-black/5">
                     <div className="flex flex-wrap gap-x-8 md:gap-x-12 gap-y-6">

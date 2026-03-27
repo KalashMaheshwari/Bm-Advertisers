@@ -15,14 +15,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
  */
 const UPCOMING_ASSETS = [
   { type: "video", url: "./banners/banner1.mp4" },
-  { type: "image", url: "./banners/banner2.png" },
-  { type: "image", url: "./banners/banner3.png" },
+  { type: "image", url: "./banners/banner2.webp" },
+  { type: "image", url: "./banners/banner3.webp" },
 ];
 
 const MAGAZINES_DATA = [
-  { id: 1, title: "BEMISAL SAKSHIYAT", year: "2024", cover: "./magazines/Bemisal_Sakshiyat_24/thumbnail.png", pdf: "./magazines/Bemisal_Sakshiyat_24/magazine.pdf" },
-  { id: 2, title: "SAFALTA KE SARTAJ", year: "2023", cover: "./magazines/Safalta_Ke_Sartaj_23/thumbnail.png", pdf: "./magazines/Safalta_Ke_Sartaj_23/magazine.pdf" },
-  { id: 3, title: "UDAAN ANNUAL EDITION", year: "2025", cover: "./magazines/UDAAN_25/thumbnail.png", pdf: "./magazines/UDAAN_25/magazine.pdf" },
+  { id: 1, title: "BEMISAL SAKSHIYAT", year: "2024", cover: "./magazines/Bemisal_Sakshiyat_24/thumbnail.webp", pdf: "./magazines/Bemisal_Sakshiyat_24/magazine.pdf" },
+  { id: 2, title: "SAFALTA KE SARTAJ", year: "2023", cover: "./magazines/Safalta_Ke_Sartaj_23/thumbnail.webp", pdf: "./magazines/Safalta_Ke_Sartaj_23/magazine.pdf" },
+  { id: 3, title: "UDAAN ANNUAL EDITION", year: "2025", cover: "./magazines/UDAAN_25/thumbnail.webp", pdf: "./magazines/UDAAN_25/magazine.pdf" },
 ];
 
 export default function Magazines() {
@@ -55,6 +55,8 @@ export default function Magazines() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const readerRef = useRef<HTMLDivElement>(null);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
 
   useEffect(() => {
@@ -77,14 +79,41 @@ export default function Magazines() {
       setJumpValue("1");
       setRotation(0);
       document.body.style.overflow = "auto";
+      // RESUME VIDEO when closing magazine
+      videoRef.current?.play().catch(() => {});
     } else {
       document.body.style.overflow = "hidden";
+      // PAUSE VIDEO when opening magazine
+      videoRef.current?.pause();
     }
   }, [activeMag]);
 
   useEffect(() => {
     setJumpValue(currPage.toString());
   }, [currPage]);
+
+  // NEW: Logic to pause video when out of focus
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (videoRef.current) {
+          // Only play if the video is visible AND no magazine is currently open
+          if (entry.isIntersecting && !activeMag) {
+            videoRef.current.play().catch(() => {}); 
+          } else {
+            videoRef.current.pause();
+          }
+        }
+      },
+      { threshold: 0.1 } // Triggers when 10% of the video is visible
+    );
+
+    // Target the hero section for observation
+    const heroSection = videoRef.current?.closest('section');
+    if (heroSection) observer.observe(heroSection);
+
+    return () => observer.disconnect();
+  }, [activeMag, assetIdx]); // Re-run if magazine opens or slide changes
 
   const toggleFullscreen = () => {
     if (!readerRef.current) return;
@@ -138,6 +167,7 @@ export default function Magazines() {
           >
             {UPCOMING_ASSETS[assetIdx].type === "video" ? (
               <video
+                ref={videoRef}
                 src={UPCOMING_ASSETS[assetIdx].url}
                 autoPlay
                 playsInline
