@@ -7,8 +7,7 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
-// Use a stable, versioned CDN for the worker to avoid 404s
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 /**
  * ARCHIVE DATA
