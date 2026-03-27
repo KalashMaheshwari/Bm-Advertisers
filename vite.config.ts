@@ -8,11 +8,9 @@ export default defineConfig(async () => {
     // @ts-ignore
     const m = await import('./.vite-source-tags.js');
     plugins.push(m.sourceTags());
-  } catch {}
-
-  return { 
-    plugins,
-    // STRICT FIX: This ensures GitHub Pages looks in the subfolder
-    base: './', 
+  } catch { }
+  return {
+    base: '/Bm-Advertisers/',
+    plugins
   };
 })
