@@ -89,7 +89,7 @@ export function Navbar() {
             {/* Desktop "Get in Touch" - High Quality Detail */}
             <Link
               to="/#contact"
-              onClick={(e) => handleNavClick("/#contact")}
+              onClick={() => handleNavClick("/#contact")}
               className="hidden md:block text-[9px] font-black uppercase tracking-[0.3em] border border-black/10 px-6 py-2.5 rounded-full hover:bg-[#A30000] hover:border-[#A30000] hover:text-white transition-all duration-500 shadow-[0_10px_20px_rgba(0,0,0,0.02)]"
             >
               Inquiry —
