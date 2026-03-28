@@ -459,7 +459,7 @@ export default function Home() {
                 </h2>
                 <div className="space-y-8 md:space-y-12">
                   <div>
-                    <p className="text-[9px] md:text-[10px] font-bold tracking-[0.3em] text-black/50 uppercase mb-3">The Studio</p>
+                    <p className="text-[9px] md:text-[10px] font-bold tracking-[0.3em] text-black/50 uppercase mb-3">The Office</p>
                     <p className="text-lg md:text-xl font-serif text-black leading-relaxed">S-316, 3rd Floor, Orbit Signature Walk<br />VIP Road, Zirakpur, PB, India</p>
                   </div>
                   <div>
