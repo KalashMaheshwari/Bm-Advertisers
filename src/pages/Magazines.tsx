@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Worker, Viewer } from '@react-pdf-viewer/core';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
 // Import the required styles
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { motion, AnimatePresence } from "framer-motion";
+
+import { toolbarPlugin, type ToolbarSlot } from '@react-pdf-viewer/toolbar';
+import { RotateDirection } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/toolbar/lib/styles/index.css';
+
 import {
   X, ChevronLeft, ChevronRight, ArrowRight, Volume2, VolumeX
 } from "lucide-react";
@@ -45,7 +48,51 @@ const MAGAZINES_DATA = [
 ];
 
 export default function Magazines() {
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  const toolbarPluginInstance = toolbarPlugin();
+  const { Toolbar } = toolbarPluginInstance;
+
+  const renderCustomToolbar = (Slot: ToolbarSlot) => {
+    const {
+      CurrentPageInput,
+      Download,
+      GoToNextPage,
+      GoToPreviousPage,
+      NumberOfPages,
+      Rotate,
+      Zoom,
+      ZoomIn,
+      ZoomOut,
+    } = Slot;
+
+    return (
+      <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10">
+        {/* Left Side: Navigation & Jump to Page */}
+        <div className="flex items-center space-x-2">
+          <GoToPreviousPage />
+          <div className="flex items-center bg-white/5 px-3 py-1 rounded border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
+            <CurrentPageInput />
+            <span className="mx-2 opacity-30">/</span>
+            <NumberOfPages />
+          </div>
+          <GoToNextPage />
+        </div>
+
+        {/* Right Side: Zoom, Rotate, and Download */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 border-r border-white/10 pr-4">
+            <ZoomOut />
+            <Zoom />
+            <ZoomIn />
+          </div>
+          <Rotate direction={RotateDirection.Forward} />
+          <div className="pl-2">
+            <Download />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // 1. SORTING LOGIC: Latest Year First
   const MAGAZINES = useMemo(() => {
     return [...MAGAZINES_DATA].sort((a, b) => parseInt(b.year) - parseInt(a.year));
@@ -222,13 +269,19 @@ export default function Magazines() {
             </div>
 
             {/* THE VIEWER ENGINE */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden bg-[#070707]">
               <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js">
-                <Viewer
-                  fileUrl={activeMag.pdf}
-                  plugins={[defaultLayoutPluginInstance]}
-                  theme="dark"
-                />
+                {/* Render the Custom Toolbar first */}
+                <Toolbar>{renderCustomToolbar}</Toolbar>
+
+                <div className="flex-1 overflow-auto">
+                  <Viewer
+                    fileUrl={activeMag.pdf}
+                    plugins={[toolbarPluginInstance]}
+                    theme="dark"
+                    defaultScale={1.0} // This is the standard prop for 100% zoom
+                  />
+                </div>
               </Worker>
             </div>
           </motion.div>
@@ -236,11 +289,46 @@ export default function Magazines() {
       </AnimatePresence>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
-        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #A30000 #0A0A0A; }
-      `}</style>
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
+  
+  /* Viewer Overrides */
+  .rpv-core__inner-pages { background-color: #070707 !important; }
+  .rpv-core__icon { color: white !important; }
+  .rpv-core__button { color: white !important; transition: all 0.3s; }
+  .rpv-core__button:hover { background-color: #A30000 !important; }
+  
+  /* TARGET EVERYTHING INSIDE THE ZOOM POPOVER TARGET */
+  .rpv-toolbar__zoom-popover-target, 
+  .rpv-core__dropdown-button,
+  .rpv-core__dropdown-button span,
+  .rpv-core__dropdown-button div {
+    color: white !important;
+    fill: white !important; /* Forces the small arrow icon to white */
+  }
+
+  /* Target the specific percentage text wrapper */
+  [data-testid="zoom__popover-target"] {
+    color: white !important;
+  }
+
+  /* Style the current page textbox separately to ensure contrast */
+  .rpv-core__textbox { 
+    background: transparent !important; 
+    border: none !important; 
+    color: white !important; 
+    width: 45px !important; 
+    text-align: center !important;
+    font-weight: 900 !important;
+  }
+
+  /* Hover states for professional feedback */
+  .rpv-core__dropdown-button:hover {
+    background-color: #A30000 !important;
+    color: white !important;
+  }
+`}</style>
     </div>
   );
 }
