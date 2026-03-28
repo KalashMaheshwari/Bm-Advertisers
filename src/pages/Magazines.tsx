@@ -15,9 +15,9 @@ import { cn } from "../lib/utils";
  * ARCHIVE DATA
  */
 const UPCOMING_ASSETS = [
-  { type: "video", url: "/banners/banner1.mp4" },
+  { type: "image", url: "/banners/banner1.webp" },
   { type: "image", url: "/banners/banner2.webp" },
-  { type: "image", url: "/banners/banner3.webp" },
+  { type: "video", url: "/banners/banner3.mp4" },
 ];
 
 const MAGAZINES_DATA = [
@@ -79,11 +79,15 @@ export default function Magazines() {
   }, [assetIdx]);
 
   // NEW: Logic to pause video when out of focus
+  // This must be a separate, standalone hook
+  useEffect(() => {
+    document.body.style.overflow = activeMag ? "hidden" : "auto";
+  }, [activeMag]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (videoRef.current) {
-          // Only play if the video is visible AND no magazine is currently open
           if (entry.isIntersecting && !activeMag) {
             videoRef.current.play().catch(() => { });
           } else {
@@ -91,13 +95,11 @@ export default function Magazines() {
           }
         }
       },
-      { threshold: 0.1 } // Triggers when 10% of the video is visible
+      { threshold: 0.1 }
     );
 
-    // Target the hero section for observation
     const heroSection = videoRef.current?.closest('section');
     if (heroSection) observer.observe(heroSection);
-
     return () => observer.disconnect();
   }, [activeMag, assetIdx]); // Re-run if magazine opens or slide changes
   return (
@@ -124,8 +126,7 @@ export default function Magazines() {
                 autoPlay
                 playsInline
                 muted={isMuted}
-                onEnded={nextSlide}
-                // CRITICAL: pointer-events-none ensures the video doesn't "steal" the drag gesture
+                onEnded={nextSlide} // This triggers the loop back to the start
                 className="w-full h-full object-cover pointer-events-none"
               />
             ) : (
@@ -243,21 +244,3 @@ export default function Magazines() {
     </div>
   );
 }
-
-<style>{`
-        /* 1. Custom Site Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
-        
-        /* 2. PDF Viewer Overrides */
-        .rpv-core__viewer { height: 100%; }
-        .rpv-core__inner-pages { background-color: #070707 !important; }
-        .rpv-core__icon { color: white !important; }
-        .rpv-core__button:hover { background-color: #A30000 !important; }
-        
-        /* 3. Hide Sidebar/Thumbnail button for clean look */
-        button[aria-label="Thumbnail"], 
-        button[aria-label="Bookmarks"],
-        button[aria-label="Attachments"] { display: none !important; }
-      `}</style>
