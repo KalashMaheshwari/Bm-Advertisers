@@ -8,6 +8,7 @@ import Gallery from './pages/Gallery';
 import Magazines from './pages/Magazines';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import LegalPage from './pages/legalpage';
 import './index.css';
 
 function ScrollToTop() {
@@ -21,7 +22,7 @@ function ScrollToTop() {
 function App() {
   return (
     // REMOVE basename="/Bm-Advertisers" here. HashRouter doesn't need it!
-    <Router> 
+    <Router>
       <ScrollToTop />
       <Navbar />
       <Routes>
@@ -30,6 +31,9 @@ function App() {
         <Route path="/magazines" element={<Magazines />} />
         {/* Catch-all route to prevent 404s inside the app */}
         <Route path="*" element={<Home />} />
+        <Route path="/privacy-policy" element={<LegalPage />} />
+        <Route path="/terms-conditions" element={<LegalPage />} />
+        <Route path="/disclaimer" element={<LegalPage />} />
       </Routes>
       <Footer />
     </Router>

@@ -136,7 +136,7 @@ export default function Home() {
             <FadeIn delay={0.2} direction="up">
               <div className="inline-flex items-center space-x-4 mb-6 md:mb-10">
                 <span className="text-[9px] md:text-[10px] font-bold tracking-[0.4em] md:tracking-[0.5em] text-[#A30000] uppercase">
-                  Est. 2006 • Chandigarh
+                  Est. 2006
                 </span>
                 <div className="h-[0.5px] w-8 md:w-12 bg-[#A30000]" />
               </div>
@@ -153,7 +153,7 @@ export default function Home() {
 
             <FadeIn delay={0.6} direction="up" className="max-w-xl mb-8 md:mb-12">
               <p className="text-white/70 text-sm md:text-lg font-light leading-relaxed tracking-wide px-2 md:px-0">
-                BM Advertiser is a Chandigarh-based media and event powerhouse specializing in premium magazines
+                BM Advertiser is a media and event powerhouse specializing in premium magazines
                 and high-profile events.
               </p>
             </FadeIn>

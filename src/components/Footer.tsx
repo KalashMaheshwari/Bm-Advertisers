@@ -59,19 +59,47 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar: License & Logo */}
-        <div className="pt-8 border-t border-white/5 flex justify-between items-center">
-          <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20">
-            ©{new Date().getFullYear()} BM ADVERTISERS
-          </span>
-          <Link to="/" onClick={handleScrollToTop}>
-            <img 
-              src="/logowhite.webp" 
-              alt="BM Logo" 
-              className="h-7 w-auto object-contain opacity-50 hover:opacity-100 transition-opacity" 
-            />
-          </Link>
-        </div>
+        {/* Bottom Bar: License, Logo & Legal */}
+<div className="pt-8 border-t border-white/5">
+  <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-6">
+    
+    {/* LEFT: Copyright (Always Left) */}
+    <div className="flex justify-start">
+      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-white/20 whitespace-nowrap">
+        ©{new Date().getFullYear()} BM Advertiser. All rights reserved.
+      </span>
+    </div>
+
+    {/* MIDDLE: Logo (Hidden on Phone, Center on Desktop) */}
+    <div className="hidden md:flex justify-center">
+      <Link to="/" onClick={handleScrollToTop}>
+        <img 
+          src="/logowhite.webp" 
+          alt="BM Logo" 
+          className="h-6 w-auto object-contain opacity-30 hover:opacity-100 transition-opacity" 
+        />
+      </Link>
+    </div>
+
+    {/* RIGHT: Legal Links (Right Aligned) */}
+    <div className="flex justify-end space-x-4 md:space-x-8">
+      {[
+        { label: 'Privacy', path: '/privacy-policy' },
+        { label: 'Terms', path: '/terms-conditions' },
+        { label: 'Disclaimer', path: '/disclaimer' }
+      ].map((item) => (
+        <Link 
+          key={item.label}
+          to={item.path}
+          className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-white/20 hover:text-[#A30000] transition-colors whitespace-nowrap"
+        >
+          {item.label}
+        </Link>
+      ))}
+    </div>
+
+  </div>
+</div>
       </div>
     </footer>
   );
