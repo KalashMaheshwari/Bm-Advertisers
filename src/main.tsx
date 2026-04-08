@@ -8,7 +8,7 @@ import Gallery from './pages/Gallery';
 import Magazines from './pages/Magazines';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import LegalPage from './pages/LegalPage';
+import LegalPage from './pages/legalpage';
 import './index.css';
 
 function ScrollToTop() {

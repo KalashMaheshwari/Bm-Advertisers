@@ -40,7 +40,7 @@ const MAGAZINES_DATA = [
   },
   {
     id: 3,
-    title: "UDAAN ANNUAL EDITION",
+    title: "UDAAN",
     year: "2025",
     cover: "/magazines/UDAAN_25/thumbnail.webp",
     pdf: "/magazines/UDAAN_25/magazine.pdf"

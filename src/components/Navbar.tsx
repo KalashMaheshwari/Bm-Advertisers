@@ -46,12 +46,16 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
 
           {/* LEFT: Subtle Logo (Appears only on scroll or mobile) */}
-          <Link to="/" className={cn(
-            "transition-all duration-500",
-            // Mobile: Always opacity-100. Desktop (md:): Start at 0, go to 100 on scroll/open.
-            "opacity-100 translate-x-0",
-            !scrolled && !isOpen && "md:opacity-0 md:-translate-x-4 md:pointer-events-none"
-          )}>
+          <Link
+            to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} // Scroll to top on click
+            className={cn(
+              "transition-all duration-500",
+              "opacity-100 translate-x-0",
+              // REMOVED pointer-events-none to make it clickable even when transparent
+              !scrolled && !isOpen && "md:opacity-0 md:-translate-x-4"
+            )}
+          >
             <img src="/logo.webp" alt="BM Logo" className="h-8 md:h-10 w-auto object-contain" />
           </Link>
 
@@ -78,21 +82,23 @@ export function Navbar() {
           </ul>
 
           {/* RIGHT: Mobile Toggle & Desktop CTA */}
+          {/* RIGHT: Mobile Toggle & Desktop CTA */}
           <div className="flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 text-black transition-transform active:scale-90"
+              // Changed from md:hidden to lg:hidden to show hamburger on tablets
+              className="lg:hidden p-2 text-black transition-transform active:scale-90"
             >
               <AnimatePresence mode="wait">
                 {isOpen ? <X key="close" size={24} /> : <Menu key="menu" size={24} />}
               </AnimatePresence>
             </button>
 
-            {/* Desktop "Get in Touch" - High Quality Detail */}
+            {/* Desktop Inquiry - Changed from md:block to lg:block */}
             <Link
               to="/#contact"
               onClick={() => handleNavClick("/#contact")}
-              className="hidden md:block text-[9px] font-black uppercase tracking-[0.3em] border border-black/10 px-6 py-2.5 rounded-full hover:bg-[#A30000] hover:border-[#A30000] hover:text-white transition-all duration-500 shadow-[0_10px_20px_rgba(0,0,0,0.02)]"
+              className="hidden lg:block text-[9px] font-black uppercase tracking-[0.3em] border border-black/10 px-6 py-2.5 rounded-full hover:bg-[#A30000] hover:border-[#A30000] hover:text-white transition-all duration-500 shadow-[0_10px_20px_rgba(0,0,0,0.02)]"
             >
               Inquiry —
             </Link>
