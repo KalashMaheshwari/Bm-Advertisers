@@ -21,6 +21,7 @@ const UPCOMING_ASSETS = [
   { type: "image", url: "/banners/banner1.webp" },
   { type: "image", url: "/banners/banner2.webp" },
   { type: "video", url: "/banners/banner3.mp4" },
+  { type: "video", url: "/banners/banner4.mp4" }
 ];
 
 const MAGAZINES_DATA = [

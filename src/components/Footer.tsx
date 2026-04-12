@@ -10,14 +10,14 @@ export function Footer() {
     <footer className="bg-[#121212] text-white py-12 px-6 lg:px-12 border-t border-white/5">
       <div className="max-w-7xl mx-auto text-left">
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 items-start mb-12">
-          
+
           {/* Tagline Section */}
           <div className="col-span-2 lg:col-span-6">
             <h2 className="font-serif text-3xl md:text-5xl tracking-tighter leading-tight mb-6">
               Let's define the <span className="text-[#A30000] italic">Next Chapter.</span>
             </h2>
-            <Link 
-              to="/#contact" 
+            <Link
+              to="/#contact"
               className="text-[9px] font-black uppercase tracking-[0.5em] text-[#A30000] border-b border-[#A30000] pb-1 hover:text-white hover:border-white transition-all inline-block"
             >
               Commence Collaboration
@@ -59,47 +59,56 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar: License, Logo & Legal */}
-<div className="pt-8 border-t border-white/5">
-  <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-6">
-    
-    {/* LEFT: Copyright (Always Left) */}
-    <div className="flex justify-start">
-      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-white/20 whitespace-nowrap">
-        ©{new Date().getFullYear()} BM Advertiser. All rights reserved.
-      </span>
-    </div>
+        {/* Bottom Bar: License, Logo, Legal & Credits */}
+        <div className="pt-8 border-t border-white/5">
+          {/* Desktop: 3 Columns | Mobile: Stacked with Logo Hidden */}
+          <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-8 md:gap-6">
 
-    {/* MIDDLE: Logo (Hidden on Phone, Center on Desktop) */}
-    <div className="hidden md:flex justify-center">
-      <Link to="/" onClick={handleScrollToTop}>
-        <img 
-          src="/logowhite.webp" 
-          alt="BM Logo" 
-          className="h-6 w-auto object-contain opacity-30 hover:opacity-100 transition-opacity" 
-        />
-      </Link>
-    </div>
+            {/* LEFT: Copyright & Credits */}
+            <div className="flex flex-col items-center md:items-start space-y-2 order-2 md:order-1">
+              <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-white/20 whitespace-nowrap">
+                ©{new Date().getFullYear()} BM Advertiser. All rights reserved.
+              </span>
+              <a
+                href="https://maheshwarikalash.netlify.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[6px] md:text-[7px] font-black uppercase tracking-[0.5em] text-white/10 hover:text-[#A30000] transition-colors"
+              >
+                Developed by Kalash Maheshwari
+              </a>
+            </div>
 
-    {/* RIGHT: Legal Links (Right Aligned) */}
-    <div className="flex justify-end space-x-4 md:space-x-8">
-      {[
-        { label: 'Privacy', path: '/privacy-policy' },
-        { label: 'Terms', path: '/terms-conditions' },
-        { label: 'Disclaimer', path: '/disclaimer' }
-      ].map((item) => (
-        <Link 
-          key={item.label}
-          to={item.path}
-          className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-white/20 hover:text-[#A30000] transition-colors whitespace-nowrap"
-        >
-          {item.label}
-        </Link>
-      ))}
-    </div>
+            {/* MIDDLE: Logo (Hidden on Phone, Center on Desktop) */}
+            <div className="hidden md:flex justify-center order-1 md:order-2">
+              <Link to="/" onClick={handleScrollToTop}>
+                <img
+                  src="/logowhite.webp"
+                  alt="BM Logo"
+                  className="h-6 w-auto object-contain opacity-30 hover:opacity-100 transition-opacity"
+                />
+              </Link>
+            </div>
 
-  </div>
-</div>
+            {/* RIGHT: Legal Links */}
+            <div className="flex justify-center md:justify-end space-x-6 md:space-x-8 order-3">
+              {[
+                { label: 'Privacy', path: '/privacy-policy' },
+                { label: 'Terms', path: '/terms-conditions' },
+                { label: 'Disclaimer', path: '/disclaimer' }
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-white/20 hover:text-[#A30000] transition-colors whitespace-nowrap"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+          </div>
+        </div>
       </div>
     </footer>
   );
