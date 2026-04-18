@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import HTMLFlipBook from "react-pageflip";
 import {
-  X, ZoomIn, ZoomOut, RotateCw, ArrowRight, Volume2, VolumeX, ChevronLeft, ChevronRight
+  X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw,
+  Volume2, VolumeX, ArrowRight
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -42,13 +44,7 @@ const MAGAZINES_DATA = [
   },
 ];
 
-// Helper to determine default zoom based on screen size
-const getDefaultZoom = () => {
-  if (typeof window !== 'undefined') {
-    return window.innerWidth < 768 ? 1.0 : 0.3; // 100% for mobile, 30% for desktop
-  }
-  return 0.3;
-};
+const getDefaultZoom = () => 1.0;
 
 export default function Magazines() {
   const MAGAZINES = useMemo(() => {
@@ -62,12 +58,14 @@ export default function Magazines() {
 
   // Magazine Reader State
   const [activeMag, setActiveMag] = useState<typeof MAGAZINES[0] | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [jumpInput, setJumpInput] = useState("1"); 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [jumpInput, setJumpInput] = useState("1");
   const [zoomLevel, setZoomLevel] = useState(getDefaultZoom);
   const [zoomInput, setZoomInput] = useState(`${Math.round(getDefaultZoom() * 100)}`);
   const [rotation, setRotation] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const flipBookRef = useRef<any>(null);
+  const scrollLockRef = useRef(false);
 
   // Carousel Logic
   const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
@@ -78,7 +76,6 @@ export default function Magazines() {
     if (info.offset.x > 50) prevSlide();
   };
 
-  // Auto-advance for images
   useEffect(() => {
     const currentAsset = UPCOMING_ASSETS[assetIdx];
     if (currentAsset.type === "image") {
@@ -87,7 +84,6 @@ export default function Magazines() {
     }
   }, [assetIdx]);
 
-  // Lock body scroll when reader is open
   useEffect(() => {
     document.body.style.overflow = activeMag ? "hidden" : "auto";
   }, [activeMag]);
@@ -99,32 +95,48 @@ export default function Magazines() {
       setZoomLevel(defaultZoom);
       setZoomInput(String(Math.round(defaultZoom * 100)));
       setRotation(0);
-      setCurrentPage(1);
+      setCurrentPage(0);
       setJumpInput("1");
-      setTimeout(() => {
-        scrollContainerRef.current?.scrollTo({ top: 0 });
-      }, 50);
     }
   }, [activeMag]);
 
-  // Keep jump input in sync with scroll position
   useEffect(() => {
-    setJumpInput(String(currentPage));
+    setJumpInput(String(currentPage + 1));
   }, [currentPage]);
 
-  // Keep zoom input in sync with zoom level
   useEffect(() => {
     setZoomInput(String(Math.round(zoomLevel * 100)));
   }, [zoomLevel]);
 
-  // Keyboard navigation
+  // Keyboard & Scroll Listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!activeMag) return;
       if (e.key === "Escape") setActiveMag(null);
+      if (e.key === "ArrowRight") flipBookRef.current?.pageFlip()?.flipNext();
+      if (e.key === "ArrowLeft") flipBookRef.current?.pageFlip()?.flipPrev();
     };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!activeMag || scrollLockRef.current) return;
+      e.preventDefault();
+      scrollLockRef.current = true;
+
+      if (e.deltaY > 0 || e.deltaX > 0) {
+        flipBookRef.current?.pageFlip()?.flipNext();
+      } else {
+        flipBookRef.current?.pageFlip()?.flipPrev();
+      }
+
+      setTimeout(() => { scrollLockRef.current = false; }, 850);
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
+    };
   }, [activeMag]);
 
   // Video intersection observer
@@ -146,61 +158,34 @@ export default function Magazines() {
     return () => observer.disconnect();
   }, [activeMag, assetIdx]);
 
-  // Scroll Listener: Track which page is currently in view
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container || !activeMag) return;
-
-    const handleScroll = () => {
-      const pages = container.querySelectorAll('.mag-page');
-      const containerRect = container.getBoundingClientRect();
-      const middlePoint = containerRect.top + containerRect.height / 2;
-
-      let current = 1;
-      pages.forEach((page, index) => {
-        const rect = page.getBoundingClientRect();
-        if (rect.top < middlePoint) {
-          current = index + 1;
-        }
-      });
-      setCurrentPage(current);
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [activeMag]);
-
   // Jump to Page Logic
   const handleJumpToPage = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
     if ('key' in e && e.key !== 'Enter') return;
-    
     const pageNum = parseInt(jumpInput, 10);
     if (activeMag && pageNum >= 1 && pageNum <= activeMag.pages) {
-      const target = scrollContainerRef.current?.querySelector(`[data-page="${pageNum}"]`);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      flipBookRef.current?.pageFlip()?.flip(pageNum - 1);
     } else {
-      setJumpInput(String(currentPage));
+      setJumpInput(String(currentPage + 1));
     }
   };
 
   // Zoom Input Logic
   const handleZoomSubmit = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
     if ('key' in e && e.key !== 'Enter') return;
-    
     let val = parseInt(zoomInput, 10);
-    if (isNaN(val)) val = Math.round(getDefaultZoom() * 100); // Fallback
-    
-    const clampedVal = Math.max(20, Math.min(300, val)); // Clamp between 20% and 300%
+    if (isNaN(val)) val = Math.round(getDefaultZoom() * 100);
+    const clampedVal = Math.max(20, Math.min(300, val));
     setZoomLevel(clampedVal / 100);
-    setZoomInput(String(clampedVal)); // Clean up input to valid number
+    setZoomInput(String(clampedVal));
   };
 
-  // Toolbar Controls
   const handleZoomIn = () => setZoomLevel(z => Math.min(3, parseFloat((z + 0.1).toFixed(1))));
   const handleZoomOut = () => setZoomLevel(z => Math.max(0.2, parseFloat((z - 0.1).toFixed(1))));
   const handleRotate = () => setRotation(r => (r + 90) % 360);
+
+  // Calculate book dimensions
+  const bookHeight = typeof window !== 'undefined' ? Math.min(window.innerHeight * 0.78, 800) : 700;
+  const bookWidth = bookHeight * (3 / 4.2);
 
   return (
     <div className="min-h-screen bg-white pt-20 md:pt-12 pb-32 selection:bg-[#A30000] selection:text-white antialiased overflow-x-hidden">
@@ -299,17 +284,17 @@ export default function Magazines() {
         </div>
       </main>
 
-      {/* CONTINUOUS SCROLL IMAGE READER */}
+      {/* PREMIUM 3D FLIP BOOK READER */}
       <AnimatePresence>
         {activeMag && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-[#0A0A0A] flex flex-col h-screen w-screen"
+            className="fixed inset-0 z-[1000] bg-[#050505] flex flex-col h-screen w-screen"
           >
             {/* HEADER */}
-            <div className="flex justify-between items-center px-6 py-4 bg-[#111] border-b border-white/5">
+            <div className="flex justify-between items-center px-6 py-4 bg-[#111] border-b border-white/5 z-20">
               <h2 className="text-white font-serif italic text-xl uppercase tracking-widest">{activeMag.title}</h2>
               <button onClick={() => setActiveMag(null)} className="text-white/40 hover:text-[#A30000] transition-colors">
                 <X size={32} strokeWidth={1} />
@@ -317,9 +302,16 @@ export default function Magazines() {
             </div>
 
             {/* ESSENTIAL TOOLBAR */}
-            <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10">
-              {/* Left: Page Indicator & Jump */}
+            <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10 z-20">
+              {/* Left: Navigation & Page Indicator */}
               <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => flipBookRef.current?.pageFlip()?.flipPrev()}
+                  className="p-2 text-white/60 hover:text-white transition-colors"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+
                 <div className="flex items-center bg-white/5 px-3 py-1 rounded border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
                   <input
                     type="number"
@@ -334,21 +326,28 @@ export default function Magazines() {
                   <span className="mx-2 opacity-30">/</span>
                   <span>{activeMag.pages}</span>
                 </div>
+
+                <button
+                  onClick={() => flipBookRef.current?.pageFlip()?.flipNext()}
+                  className="p-2 text-white/60 hover:text-white transition-colors"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
 
               {/* Right: Controls */}
               <div className="flex items-center space-x-1 border-l border-white/10 pl-4">
-                <button 
-                  onClick={handleRotate} 
+                <button
+                  onClick={handleRotate}
                   className="p-2 text-white/60 hover:text-white transition-colors"
                   title="Rotate"
                 >
                   <RotateCw size={18} />
                 </button>
-                
+
                 <div className="flex items-center border-l border-white/10 pl-4 ml-1">
-                  <button 
-                    onClick={handleZoomOut} 
+                  <button
+                    onClick={handleZoomOut}
                     disabled={zoomLevel === 0.2}
                     className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   >
@@ -367,8 +366,8 @@ export default function Magazines() {
                     />
                     <span>%</span>
                   </div>
-                  <button 
-                    onClick={handleZoomIn} 
+                  <button
+                    onClick={handleZoomIn}
                     disabled={zoomLevel === 3}
                     className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   >
@@ -378,27 +377,58 @@ export default function Magazines() {
               </div>
             </div>
 
-            {/* VERTICAL SCROLL VIEWPORT */}
-            <div 
-              ref={scrollContainerRef}
-              className="flex-1 overflow-auto bg-[#070707] custom-scrollbar"
-            >
-              <div 
-                className="mx-auto transition-[width] duration-200 py-4 px-2"
-                style={{ width: `${zoomLevel * 100}%` }}
+            {/* 3D BOOK VIEWPORT */}
+            <div className="flex-1 overflow-hidden bg-[#050505] flex items-center justify-center relative">
+              {/* Ambient red glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(163,0,0,0.08)_0%,transparent_70%)]" />
+
+              <div
+                className="relative transition-transform duration-300 ease-out"
+                style={{
+                  transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                  transformOrigin: 'center center'
+                }}
               >
-                {Array.from({ length: activeMag.pages }, (_, i) => (
-                  <div key={i} className="mag-page flex justify-center mb-2" data-page={i + 1}>
-                    <img
-                      src={`${activeMag.basePath}/page (${i + 1}).webp`}
-                      alt={`Page ${i + 1}`}
-                      className="max-w-full h-auto shadow-lg transition-transform duration-300"
-                      style={{ transform: `rotate(${rotation}deg)` }}
-                      loading="lazy"
-                      draggable={false}
-                    />
-                  </div>
-                ))}
+                {/* @ts-ignore - react-pageflip lacks proper TS types */}
+                <HTMLFlipBook
+                  ref={flipBookRef}
+                  width={bookWidth}
+                  height={bookHeight}
+                  size="fixed"
+                  minWidth={300}
+                  maxWidth={1000}
+                  minHeight={400}
+                  maxHeight={1400}
+                  showCover={true}
+                  drawShadow={true}
+                  flippingTime={800}
+                  usePortrait={false}
+                  startZIndex={0}
+                  autoSize={false}
+                  maxShadowOpacity={0.5}
+                  mobileScrollSupport={false}
+                  clickEventForward={false}
+                  useMouseEvents={true}
+                  swipeDistance={30}
+                  showPageCorners={true}
+                  disableFlipByClick={false}
+                  startPage={0}
+                  style={{}}
+                  className="magazine-flipbook shadow-[0_25px_60px_rgba(0,0,0,0.5)]"
+                  onFlip={(e: any) => setCurrentPage(e.data)}
+                >
+                  {Array.from({ length: activeMag.pages }, (_, i) => (
+                    <div key={i} className="mag-page bg-[#111] overflow-hidden">
+                      <img
+                        src={`${activeMag.basePath}/page (${i + 1}).webp`}
+                        alt={`Page ${i + 1}`}
+                        className="w-full h-full object-cover select-none pointer-events-none"
+                        draggable={false}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </HTMLFlipBook>
               </div>
             </div>
           </motion.div>
@@ -406,9 +436,18 @@ export default function Magazines() {
       </AnimatePresence>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
+        .magazine-flipbook .mag-page {
+          background-color: #111;
+          overflow: hidden;
+        }
+        
+        .magazine-flipbook .mag-page img {
+          filter: contrast(1.02) brightness(1.01);
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0A0A0A; }
+        ::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
       `}</style>
     </div>
   );
