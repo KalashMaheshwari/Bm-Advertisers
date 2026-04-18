@@ -362,24 +362,24 @@ export default function Magazines() {
             </div>
 
             {/* ESSENTIAL TOOLBAR */}
-            <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10 z-20">
+            <div className="flex items-center justify-between w-full px-2 py-1.5 md:px-4 md:py-2 bg-[#111] border-b border-white/10 z-20">
               {/* Left: Navigation & Page Indicator */}
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => flipBookRef.current?.pageFlip()?.flipPrev()}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
+                  className="p-1.5 md:p-2 text-white/60 hover:text-white transition-colors"
                 >
-                  <ChevronLeft size={20} />
+                  <ChevronLeft size={16} className="md:w-5 md:h-5" />
                 </button>
 
-                <div className="flex items-center bg-white/5 px-3 py-1 rounded border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
+                <div className="flex items-center bg-white/5 px-2 py-0.5 md:px-3 md:py-1 rounded border border-white/10 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest">
                   <input
                     type="number"
                     value={jumpInput}
                     onChange={(e) => setJumpInput(e.target.value)}
                     onKeyDown={handleJumpToPage}
                     onBlur={handleJumpToPage}
-                    className="w-8 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-6 md:w-8 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min={1}
                     max={activeMag.pages}
                   />
@@ -391,36 +391,36 @@ export default function Magazines() {
                   onClick={() => flipBookRef.current?.pageFlip()?.flipNext()}
                   className="p-2 text-white/60 hover:text-white transition-colors"
                 >
-                  <ChevronRight size={20} />
+                  <ChevronRight size={16} className="md:w-5 md:h-5" />
                 </button>
               </div>
 
               {/* Right: Controls */}
-              <div className="flex items-center space-x-1 border-l border-white/10 pl-4">
+              <div className="flex items-center space-x-0.5 md:space-x-1 border-l border-white/10 pl-2 md:pl-4">
                 <button
                   onClick={handleRotate}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
+                  className="p-1 md:p-2 text-white/60 hover:text-white transition-colors"
                   title="Rotate"
                 >
-                  <RotateCw size={18} />
+                  <RotateCw size={16} className="md:w-[18px] md:h-[18px]" />
                 </button>
 
-                <div className="flex items-center border-l border-white/10 pl-4 ml-1">
+                <div className="flex items-center border-l border-white/10 pl-2 ml-0.5 md:pl-4 md:ml-1">
                   <button
                     onClick={handleZoomOut}
                     disabled={zoomLevel === 0.2}
                     className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   >
-                    <ZoomOut size={18} />
+                    <ZoomOut size={16} className="md:w-[18px] md:h-[18px]" />
                   </button>
-                  <div className="flex items-center px-1 text-white/80 text-[11px] font-bold select-none">
+                  <div className="flex items-center px-1 text-white/80 text-[9px] md:text-[11px] font-bold select-none">
                     <input
                       type="number"
                       value={zoomInput}
                       onChange={(e) => setZoomInput(e.target.value)}
                       onKeyDown={handleZoomSubmit}
                       onBlur={handleZoomSubmit}
-                      className="w-10 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-8 md:w-10 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min={20}
                       max={300}
                     />
@@ -431,7 +431,7 @@ export default function Magazines() {
                     disabled={zoomLevel === 3}
                     className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   >
-                    <ZoomIn size={18} />
+                    <ZoomIn size={16} className="md:w-[18px] md:h-[18px]" />
                   </button>
                 </div>
               </div>
