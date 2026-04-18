@@ -101,6 +101,21 @@ export default function Magazines() {
   }, [activeMag]);
 
   useEffect(() => {
+    if (!activeMag) return;
+
+    const prefetchImages = () => {
+      for (let i = 1; i <= activeMag.pages; i++) {
+        const img = new Image();
+        img.src = `${activeMag.basePath}/page (${i}).webp`;
+      }
+    };
+
+    // Delay by 300ms so it doesn't block the UI rendering the flipbook initially
+    const timer = setTimeout(prefetchImages, 300);
+    return () => clearTimeout(timer);
+  }, [activeMag]);
+
+  useEffect(() => {
     setJumpInput(String(currentPage + 1));
   }, [currentPage]);
 
@@ -418,13 +433,19 @@ export default function Magazines() {
                   onFlip={(e: any) => setCurrentPage(e.data)}
                 >
                   {Array.from({ length: activeMag.pages }, (_, i) => (
-                    <div key={i} className="mag-page bg-[#111] overflow-hidden">
+                    <div key={i} className="mag-page bg-[#111] overflow-hidden relative">
+                      {/* Shimmer Placeholder */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] animate-pulse" />
+
                       <img
                         src={`${activeMag.basePath}/page (${i + 1}).webp`}
                         alt={`Page ${i + 1}`}
-                        className="w-full h-full object-cover select-none pointer-events-none"
+                        className="relative w-full h-full object-cover select-none pointer-events-none transition-opacity duration-300"
                         draggable={false}
-                        loading="lazy"
+                        loading={i < 3 ? "eager" : "lazy"} // Load first 3 instantly
+                        fetchPriority={i < 2 ? "high" : "low"} // Tell network to prioritize cover
+                        onLoad={(e) => (e.currentTarget.style.opacity = "1")}
+                        style={{ opacity: 0 }} // Fade in when loaded
                       />
                     </div>
                   ))}
