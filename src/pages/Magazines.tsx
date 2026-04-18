@@ -1,16 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-
-// Import the required styles
-import '@react-pdf-viewer/core/lib/styles/index.css';
 import { motion, AnimatePresence } from "framer-motion";
-
-import { toolbarPlugin, type ToolbarSlot } from '@react-pdf-viewer/toolbar';
-import { RotateDirection } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/toolbar/lib/styles/index.css';
-
 import {
-  X, ChevronLeft, ChevronRight, ArrowRight, Volume2, VolumeX
+  X, ZoomIn, ZoomOut, RotateCw, ArrowRight, Volume2, VolumeX, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -30,94 +21,64 @@ const MAGAZINES_DATA = [
     title: "BEMISAL SAKSHIYAT",
     year: "2024",
     cover: "/magazines/Bemisal_Sakshiyat_24/thumbnail.webp",
-    pdf: "/magazines/Bemisal_Sakshiyat_24/magazine.pdf"
+    basePath: "/magazines/Bemisal_Sakshiyat_24",
+    pages: 152 // Update to actual page count
   },
   {
     id: 2,
     title: "SAFALTA KE SARTAJ",
     year: "2023",
     cover: "/magazines/Safalta_Ke_Sartaj_23/thumbnail.webp",
-    pdf: "/magazines/Safalta_Ke_Sartaj_23/magazine.pdf"
+    basePath: "/magazines/Safalta_Ke_Sartaj_23",
+    pages: 124 // Update to actual page count
   },
   {
     id: 3,
     title: "UDAAN",
     year: "2025",
     cover: "/magazines/UDAAN_25/thumbnail.webp",
-    pdf: "/magazines/UDAAN_25/magazine.pdf"
+    basePath: "/magazines/UDAAN_25",
+    pages: 194 // Update to actual page count
   },
 ];
 
+// Helper to determine default zoom based on screen size
+const getDefaultZoom = () => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth < 768 ? 1.0 : 0.3; // 100% for mobile, 30% for desktop
+  }
+  return 0.3;
+};
+
 export default function Magazines() {
-  const toolbarPluginInstance = toolbarPlugin();
-  const { Toolbar } = toolbarPluginInstance;
-
-  const renderCustomToolbar = (Slot: ToolbarSlot) => {
-    const {
-      CurrentPageInput,
-      Download,
-      GoToNextPage,
-      GoToPreviousPage,
-      NumberOfPages,
-      Rotate,
-      Zoom,
-      ZoomIn,
-      ZoomOut,
-    } = Slot;
-
-    return (
-      <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10">
-        {/* Left Side: Navigation & Jump to Page */}
-        <div className="flex items-center space-x-2">
-          <GoToPreviousPage />
-          <div className="flex items-center bg-white/5 px-3 py-1 rounded border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
-            <CurrentPageInput />
-            <span className="mx-2 opacity-30">/</span>
-            <NumberOfPages />
-          </div>
-          <GoToNextPage />
-        </div>
-
-        {/* Right Side: Zoom, Rotate, and Download */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1 border-r border-white/10 pr-4">
-            <ZoomOut />
-            <Zoom />
-            <ZoomIn />
-          </div>
-          <Rotate direction={RotateDirection.Forward} />
-          <div className="pl-2">
-            <Download />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // 1. SORTING LOGIC: Latest Year First
   const MAGAZINES = useMemo(() => {
     return [...MAGAZINES_DATA].sort((a, b) => parseInt(b.year) - parseInt(a.year));
   }, []);
 
-  // NEW: Add prevSlide and swipe handler
+  // Hero Carousel State
+  const [assetIdx, setAssetIdx] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Magazine Reader State
+  const [activeMag, setActiveMag] = useState<typeof MAGAZINES[0] | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [jumpInput, setJumpInput] = useState("1"); 
+  const [zoomLevel, setZoomLevel] = useState(getDefaultZoom);
+  const [zoomInput, setZoomInput] = useState(`${Math.round(getDefaultZoom() * 100)}`);
+  const [rotation, setRotation] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Carousel Logic
+  const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
   const prevSlide = () => setAssetIdx(p => (p - 1 + UPCOMING_ASSETS.length) % UPCOMING_ASSETS.length);
 
   const onDragEnd = (_: any, info: any) => {
-    // If the user swipes left more than 50px
     if (info.offset.x < -50) nextSlide();
-    // If the user swipes right more than 50px
     if (info.offset.x > 50) prevSlide();
   };
 
-  const [activeMag, setActiveMag] = useState<typeof MAGAZINES[0] | null>(null);
-  const [assetIdx, setAssetIdx] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
-
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
-
+  // Auto-advance for images
   useEffect(() => {
     const currentAsset = UPCOMING_ASSETS[assetIdx];
     if (currentAsset.type === "image") {
@@ -126,12 +87,47 @@ export default function Magazines() {
     }
   }, [assetIdx]);
 
-  // NEW: Logic to pause video when out of focus
-  // This must be a separate, standalone hook
+  // Lock body scroll when reader is open
   useEffect(() => {
     document.body.style.overflow = activeMag ? "hidden" : "auto";
   }, [activeMag]);
 
+  // Reset reader state when magazine opens
+  useEffect(() => {
+    if (activeMag) {
+      const defaultZoom = getDefaultZoom();
+      setZoomLevel(defaultZoom);
+      setZoomInput(String(Math.round(defaultZoom * 100)));
+      setRotation(0);
+      setCurrentPage(1);
+      setJumpInput("1");
+      setTimeout(() => {
+        scrollContainerRef.current?.scrollTo({ top: 0 });
+      }, 50);
+    }
+  }, [activeMag]);
+
+  // Keep jump input in sync with scroll position
+  useEffect(() => {
+    setJumpInput(String(currentPage));
+  }, [currentPage]);
+
+  // Keep zoom input in sync with zoom level
+  useEffect(() => {
+    setZoomInput(String(Math.round(zoomLevel * 100)));
+  }, [zoomLevel]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!activeMag) return;
+      if (e.key === "Escape") setActiveMag(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeMag]);
+
+  // Video intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -145,21 +141,77 @@ export default function Magazines() {
       },
       { threshold: 0.1 }
     );
-
     const heroSection = videoRef.current?.closest('section');
     if (heroSection) observer.observe(heroSection);
     return () => observer.disconnect();
-  }, [activeMag, assetIdx]); // Re-run if magazine opens or slide changes
+  }, [activeMag, assetIdx]);
+
+  // Scroll Listener: Track which page is currently in view
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || !activeMag) return;
+
+    const handleScroll = () => {
+      const pages = container.querySelectorAll('.mag-page');
+      const containerRect = container.getBoundingClientRect();
+      const middlePoint = containerRect.top + containerRect.height / 2;
+
+      let current = 1;
+      pages.forEach((page, index) => {
+        const rect = page.getBoundingClientRect();
+        if (rect.top < middlePoint) {
+          current = index + 1;
+        }
+      });
+      setCurrentPage(current);
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [activeMag]);
+
+  // Jump to Page Logic
+  const handleJumpToPage = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+    if ('key' in e && e.key !== 'Enter') return;
+    
+    const pageNum = parseInt(jumpInput, 10);
+    if (activeMag && pageNum >= 1 && pageNum <= activeMag.pages) {
+      const target = scrollContainerRef.current?.querySelector(`[data-page="${pageNum}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      setJumpInput(String(currentPage));
+    }
+  };
+
+  // Zoom Input Logic
+  const handleZoomSubmit = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+    if ('key' in e && e.key !== 'Enter') return;
+    
+    let val = parseInt(zoomInput, 10);
+    if (isNaN(val)) val = Math.round(getDefaultZoom() * 100); // Fallback
+    
+    const clampedVal = Math.max(20, Math.min(300, val)); // Clamp between 20% and 300%
+    setZoomLevel(clampedVal / 100);
+    setZoomInput(String(clampedVal)); // Clean up input to valid number
+  };
+
+  // Toolbar Controls
+  const handleZoomIn = () => setZoomLevel(z => Math.min(3, parseFloat((z + 0.1).toFixed(1))));
+  const handleZoomOut = () => setZoomLevel(z => Math.max(0.2, parseFloat((z - 0.1).toFixed(1))));
+  const handleRotate = () => setRotation(r => (r + 90) % 360);
+
   return (
     <div className="min-h-screen bg-white pt-20 md:pt-12 pb-32 selection:bg-[#A30000] selection:text-white antialiased overflow-x-hidden">
 
-      {/* HERO SECTION - Optimized Aspect for Mobile */}
+      {/* HERO SECTION */}
       <section className="px-4 md:px-12 mb-20 md:mb-32">
         <div className="max-w-[1600px] mx-auto relative aspect-[16/10] md:aspect-video bg-[#0A0A0A] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl group">
           <motion.div
             key={`asset-${assetIdx}`}
-            drag="x" // Enables horizontal dragging
-            dragConstraints={{ left: 0, right: 0 }} // Snaps back if not swiped far enough
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={onDragEnd}
             className="w-full h-full cursor-grab active:cursor-grabbing"
             initial={{ opacity: 0, x: 20 }}
@@ -174,7 +226,7 @@ export default function Magazines() {
                 autoPlay
                 playsInline
                 muted={isMuted}
-                onEnded={nextSlide} // This triggers the loop back to the start
+                onEnded={nextSlide}
                 className="w-full h-full object-cover pointer-events-none"
               />
             ) : (
@@ -186,7 +238,6 @@ export default function Magazines() {
             )}
           </motion.div>
 
-          {/* Mute Toggle */}
           {UPCOMING_ASSETS[assetIdx].type === "video" && (
             <button
               onClick={() => setIsMuted(!isMuted)}
@@ -196,8 +247,6 @@ export default function Magazines() {
             </button>
           )}
 
-          {/* Nav Arrows - Responsive Visibility */}
-          {/* Left Arrow - Hidden on mobile, flex on medium screens */}
           <button
             onClick={prevSlide}
             className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-16 h-16 items-center justify-center bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20"
@@ -205,7 +254,6 @@ export default function Magazines() {
             <ChevronLeft size={28} />
           </button>
 
-          {/* Right Arrow - Hidden on mobile, flex on medium screens */}
           <button
             onClick={nextSlide}
             className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-16 h-16 items-center justify-center bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20"
@@ -213,7 +261,6 @@ export default function Magazines() {
             <ChevronRight size={28} />
           </button>
 
-          {/* Dots */}
           <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-20 flex space-x-2 md:space-x-3 bg-black/20 backdrop-blur-sm px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-white/5">
             {UPCOMING_ASSETS.map((_, i) => (<button key={i} onClick={() => setAssetIdx(i)} className={cn("h-[3px] md:h-1.5 rounded-full transition-all duration-500", i === assetIdx ? "w-4 md:w-10 bg-white" : "w-1 md:w-1.5 bg-white/30")} />))}
           </div>
@@ -252,7 +299,7 @@ export default function Magazines() {
         </div>
       </main>
 
-      {/* MASTER READER */}
+      {/* CONTINUOUS SCROLL IMAGE READER */}
       <AnimatePresence>
         {activeMag && (
           <motion.div
@@ -261,7 +308,7 @@ export default function Magazines() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[1000] bg-[#0A0A0A] flex flex-col h-screen w-screen"
           >
-            {/* HEADER WITH CLOSE BUTTON */}
+            {/* HEADER */}
             <div className="flex justify-between items-center px-6 py-4 bg-[#111] border-b border-white/5">
               <h2 className="text-white font-serif italic text-xl uppercase tracking-widest">{activeMag.title}</h2>
               <button onClick={() => setActiveMag(null)} className="text-white/40 hover:text-[#A30000] transition-colors">
@@ -269,67 +316,100 @@ export default function Magazines() {
               </button>
             </div>
 
-            {/* THE VIEWER ENGINE */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[#070707]">
-              <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js">
-                {/* Render the Custom Toolbar first */}
-                <Toolbar>{renderCustomToolbar}</Toolbar>
-
-                <div className="flex-1 overflow-auto">
-                  <Viewer
-                    fileUrl={activeMag.pdf}
-                    plugins={[toolbarPluginInstance]}
-                    theme="dark"
-                    defaultScale={1.0} // This is the standard prop for 100% zoom
+            {/* ESSENTIAL TOOLBAR */}
+            <div className="flex items-center justify-between w-full px-4 py-2 bg-[#111] border-b border-white/10">
+              {/* Left: Page Indicator & Jump */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center bg-white/5 px-3 py-1 rounded border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
+                  <input
+                    type="number"
+                    value={jumpInput}
+                    onChange={(e) => setJumpInput(e.target.value)}
+                    onKeyDown={handleJumpToPage}
+                    onBlur={handleJumpToPage}
+                    className="w-8 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min={1}
+                    max={activeMag.pages}
                   />
+                  <span className="mx-2 opacity-30">/</span>
+                  <span>{activeMag.pages}</span>
                 </div>
-              </Worker>
+              </div>
+
+              {/* Right: Controls */}
+              <div className="flex items-center space-x-1 border-l border-white/10 pl-4">
+                <button 
+                  onClick={handleRotate} 
+                  className="p-2 text-white/60 hover:text-white transition-colors"
+                  title="Rotate"
+                >
+                  <RotateCw size={18} />
+                </button>
+                
+                <div className="flex items-center border-l border-white/10 pl-4 ml-1">
+                  <button 
+                    onClick={handleZoomOut} 
+                    disabled={zoomLevel === 0.2}
+                    className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ZoomOut size={18} />
+                  </button>
+                  <div className="flex items-center px-1 text-white/80 text-[11px] font-bold select-none">
+                    <input
+                      type="number"
+                      value={zoomInput}
+                      onChange={(e) => setZoomInput(e.target.value)}
+                      onKeyDown={handleZoomSubmit}
+                      onBlur={handleZoomSubmit}
+                      className="w-10 bg-transparent text-center outline-none text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min={20}
+                      max={300}
+                    />
+                    <span>%</span>
+                  </div>
+                  <button 
+                    onClick={handleZoomIn} 
+                    disabled={zoomLevel === 3}
+                    className="p-2 text-white/60 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ZoomIn size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* VERTICAL SCROLL VIEWPORT */}
+            <div 
+              ref={scrollContainerRef}
+              className="flex-1 overflow-auto bg-[#070707] custom-scrollbar"
+            >
+              <div 
+                className="mx-auto transition-[width] duration-200 py-4 px-2"
+                style={{ width: `${zoomLevel * 100}%` }}
+              >
+                {Array.from({ length: activeMag.pages }, (_, i) => (
+                  <div key={i} className="mag-page flex justify-center mb-2" data-page={i + 1}>
+                    <img
+                      src={`${activeMag.basePath}/page (${i + 1}).webp`}
+                      alt={`Page ${i + 1}`}
+                      className="max-w-full h-auto shadow-lg transition-transform duration-300"
+                      style={{ transform: `rotate(${rotation}deg)` }}
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <style>{`
-  .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
-  
-  /* Viewer Overrides */
-  .rpv-core__inner-pages { background-color: #070707 !important; }
-  .rpv-core__icon { color: white !important; }
-  .rpv-core__button { color: white !important; transition: all 0.3s; }
-  .rpv-core__button:hover { background-color: #A30000 !important; }
-  
-  /* TARGET EVERYTHING INSIDE THE ZOOM POPOVER TARGET */
-  .rpv-toolbar__zoom-popover-target, 
-  .rpv-core__dropdown-button,
-  .rpv-core__dropdown-button span,
-  .rpv-core__dropdown-button div {
-    color: white !important;
-    fill: white !important; /* Forces the small arrow icon to white */
-  }
-
-  /* Target the specific percentage text wrapper */
-  [data-testid="zoom__popover-target"] {
-    color: white !important;
-  }
-
-  /* Style the current page textbox separately to ensure contrast */
-  .rpv-core__textbox { 
-    background: transparent !important; 
-    border: none !important; 
-    color: white !important; 
-    width: 45px !important; 
-    text-align: center !important;
-    font-weight: 900 !important;
-  }
-
-  /* Hover states for professional feedback */
-  .rpv-core__dropdown-button:hover {
-    background-color: #A30000 !important;
-    color: white !important;
-  }
-`}</style>
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0A0A0A; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #A30000; border-radius: 20px; border: 2px solid #0A0A0A; }
+      `}</style>
     </div>
   );
 }
