@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HTMLFlipBook from "react-pageflip";
 import {
@@ -46,6 +46,34 @@ const MAGAZINES_DATA = [
 
 const getDefaultZoom = () => 1.0;
 
+// Dedicated Page Component (Required by react-pageflip for forwardRef)
+// Also handles the individual round loader for each page
+const MagazinePage = forwardRef(({ pageNum, basePath }: { pageNum: number; basePath: string }, ref: any) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div ref={ref} className="mag-page bg-[#111] overflow-hidden relative flex items-center justify-center">
+
+      {/* Round Loader */}
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="w-10 h-10 border-4 border-white/10 border-t-[#A30000] rounded-full animate-spin" />
+        </div>
+      )}
+
+      <img
+        src={`${basePath}/page (${pageNum}).webp`}
+        alt={`Page ${pageNum}`}
+        className={`w-full h-full object-contain select-none pointer-events-none transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} // <-- Changed to object-contain
+        draggable={false}
+        loading={pageNum <= 3 ? "eager" : "lazy"}
+        fetchPriority={pageNum <= 2 ? "high" : "low"}
+        onLoad={() => setIsLoaded(true)}
+      />
+    </div>
+  );
+});
+
 export default function Magazines() {
   const MAGAZINES = useMemo(() => {
     return [...MAGAZINES_DATA].sort((a, b) => parseInt(b.year) - parseInt(a.year));
@@ -64,8 +92,18 @@ export default function Magazines() {
   const [zoomInput, setZoomInput] = useState(`${Math.round(getDefaultZoom() * 100)}`);
   const [rotation, setRotation] = useState(0);
 
+  // Mobile Detection State
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
   const flipBookRef = useRef<any>(null);
   const scrollLockRef = useRef(false);
+
+  // Mobile Resize Listener
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Carousel Logic
   const nextSlide = () => setAssetIdx(p => (p + 1) % UPCOMING_ASSETS.length);
@@ -183,9 +221,31 @@ export default function Magazines() {
   const handleZoomOut = () => setZoomLevel(z => Math.max(0.2, parseFloat((z - 0.1).toFixed(1))));
   const handleRotate = () => setRotation(r => (r + 90) % 360);
 
-  // Calculate book dimensions
-  const bookHeight = typeof window !== 'undefined' ? Math.min(window.innerHeight * 0.78, 800) : 700;
-  const bookWidth = bookHeight * (3 / 4.2);
+  // Dynamic Book Dimensions based on Mobile/Desktop
+  // Dynamic Book Dimensions based on Mobile/Desktop
+  const getBookDimensions = () => {
+    if (isMobile) {
+      const maxWidth = window.innerWidth * 0.92; // 92% of screen width
+      const maxHeight = window.innerHeight * 0.72; // Leave safe room for header/toolbar
+
+      let width = maxWidth;
+      let height = width * (4.2 / 3); // Calculate height based on aspect ratio
+
+      // If the calculated height is too tall for the screen, constrain by height instead
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * (3 / 4.2);
+      }
+
+      return { width, height };
+    } else {
+      const height = Math.min(window.innerHeight * 0.78, 800);
+      const width = height * (3 / 4.2);
+      return { width, height };
+    }
+  };
+
+  const { width: bookWidth, height: bookHeight } = getBookDimensions();
 
   return (
     <div className="min-h-screen bg-white pt-20 md:pt-12 pb-32 selection:bg-[#A30000] selection:text-white antialiased overflow-x-hidden">
@@ -389,8 +449,10 @@ export default function Magazines() {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* @ts-ignore - react-pageflip lacks proper TS types */}
+                {/* @ts-ignore */}
+                {/* @ts-ignore */}
                 <HTMLFlipBook
+                  key={isMobile ? 'mobile' : 'desktop'} // <--- ADD THIS LINE
                   ref={flipBookRef}
                   width={bookWidth}
                   height={bookHeight}
@@ -402,7 +464,7 @@ export default function Magazines() {
                   showCover={true}
                   drawShadow={true}
                   flippingTime={800}
-                  usePortrait={false}
+                  usePortrait={isMobile} // TRUE = 1 page on mobile, FALSE = 2 pages on desktop
                   startZIndex={0}
                   autoSize={false}
                   maxShadowOpacity={0.5}
@@ -418,19 +480,11 @@ export default function Magazines() {
                   onFlip={(e: any) => setCurrentPage(e.data)}
                 >
                   {Array.from({ length: activeMag.pages }, (_, i) => (
-                    <div key={i} className="mag-page bg-[#111] overflow-hidden relative">
-                      {/* Shimmer Placeholder */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] animate-pulse" />
-
-                      <img
-                        src={`${activeMag.basePath}/page (${i + 1}).webp`}
-                        alt={`Page ${i + 1}`}
-                        className="w-full h-full object-cover select-none pointer-events-none"
-                        draggable={false}
-                        loading={i < 3 ? "eager" : "lazy"} // Load cover + next 2 instantly, lazy-load the rest
-                        fetchPriority={i === 0 ? "high" : "low"} // Force network to prioritize page 1
-                      />
-                    </div>
+                    <MagazinePage
+                      key={i}
+                      pageNum={i + 1}
+                      basePath={activeMag.basePath}
+                    />
                   ))}
                 </HTMLFlipBook>
               </div>
@@ -443,10 +497,6 @@ export default function Magazines() {
         .magazine-flipbook .mag-page {
           background-color: #111;
           overflow: hidden;
-        }
-        
-        .magazine-flipbook .mag-page img {
-          filter: contrast(1.02) brightness(1.01);
         }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
